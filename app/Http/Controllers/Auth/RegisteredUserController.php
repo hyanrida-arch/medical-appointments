@@ -16,43 +16,46 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'role' => ['required', 'in:doctor,patient'],
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'phone' => 'nullable|string|max:30',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            // Doctor-only fields — required if role is doctor
-            'specialization' => ['required_if:role,doctor', 'nullable', 'string', 'max:255'],
-            'consultation_fee' => ['required_if:role,doctor', 'nullable', 'numeric', 'min:0'],
-            'biography' => ['nullable', 'string', 'max:2000'],
+            'role' => 'required|in:patient,doctor',
+            'profile_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            // Doctor fields (only required if role=doctor)
+            'specialization' => 'required_if:role,doctor|nullable|string|max:255',
+            'consultation_fee' => 'required_if:role,doctor|nullable|numeric|min:0',
+            'biography' => 'nullable|string|max:2000',
         ]);
 
+        // Handle profile photo upload (BEFORE creating the user)
+        $profilePhotoPath = null;
+        if ($request->hasFile('profile_photo')) {
+            $profilePhotoPath = $request->file('profile_photo')->store('profile-photos', 'public');
+        }
+
+        // Create user
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'role' => $request->role,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'profile_photo' => $profilePhotoPath,
         ]);
 
-        // If registering as a doctor, create their profile
-        if ($user->role === 'doctor') {
+        // Create doctor profile if role is doctor
+        if ($request->role === 'doctor') {
             DoctorProfile::create([
                 'user_id' => $user->id,
                 'specialization' => $request->specialization,
@@ -65,6 +68,11 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to role-specific dashboard
+        if ($user->isDoctor()) {
+            return redirect()->route('doctor.dashboard');
+        }
+
+        return redirect()->route('patient.dashboard');
     }
 }

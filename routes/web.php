@@ -20,13 +20,14 @@ Route::get('/dashboard', function () {
 // Doctor routes
 Route::middleware(['auth', 'doctor'])->prefix('doctor')->name('doctor.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard');
-
-    // Appointments
     Route::get('/appointments', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('appointments.show');
     Route::patch('/appointments/{appointment}/accept', [\App\Http\Controllers\Doctor\AppointmentController::class, 'accept'])->name('appointments.accept');
     Route::patch('/appointments/{appointment}/refuse', [\App\Http\Controllers\Doctor\AppointmentController::class, 'refuse'])->name('appointments.refuse');
     Route::patch('/appointments/{appointment}/complete', [\App\Http\Controllers\Doctor\AppointmentController::class, 'complete'])->name('appointments.complete');
+
+    // PDF export
+    Route::get('/appointments-pdf-export', [\App\Http\Controllers\PdfController::class, 'doctorAppointments'])->name('appointments.export-pdf');
 });
 
 // Patient routes
@@ -45,6 +46,9 @@ Route::middleware(['auth', 'patient'])->prefix('patient')->name('patient.')->gro
 
     // Ratings
     Route::post('/appointments/{appointment}/rate', [\App\Http\Controllers\RatingController::class, 'store'])->name('appointments.rate');
+
+    // PDF export
+    Route::get('/appointments-pdf-export', [\App\Http\Controllers\PdfController::class, 'patientAppointments'])->name('appointments.export-pdf');
 });
 
 // Messaging — accessible to both doctors and patients

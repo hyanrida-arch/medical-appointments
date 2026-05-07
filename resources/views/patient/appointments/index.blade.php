@@ -8,23 +8,30 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <!-- Filter tabs -->
+            <!-- Filter tabs + Export PDF -->
             <div class="bg-white dark:bg-gray-800 shadow-soft hover:shadow-medium transition-shadow sm:rounded-xl p-6 mb-6">
-                <div class="flex gap-2">
-                    <a href="{{ route('patient.appointments.index') }}"
-                       class="px-4 py-2 rounded-md text-sm font-medium transition
-                       {{ !request('filter') ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                        {{ __('messages.all') }}
-                    </a>
-                    <a href="{{ route('patient.appointments.index', ['filter' => 'upcoming']) }}"
-                       class="px-4 py-2 rounded-md text-sm font-medium transition
-                       {{ request('filter') === 'upcoming' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                        {{ __('messages.upcoming') }}
-                    </a>
-                    <a href="{{ route('patient.appointments.index', ['filter' => 'past']) }}"
-                       class="px-4 py-2 rounded-md text-sm font-medium transition
-                       {{ request('filter') === 'past' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                        {{ __('messages.past') }}
+                <div class="flex gap-2 justify-between items-center flex-wrap">
+                    <div class="flex gap-2">
+                        <a href="{{ route('patient.appointments.index') }}"
+                           class="px-4 py-2 rounded-md text-sm font-medium transition {{ !request('filter') ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
+                            {{ __('messages.all') }}
+                        </a>
+                        <a href="{{ route('patient.appointments.index', ['filter' => 'upcoming']) }}"
+                           class="px-4 py-2 rounded-md text-sm font-medium transition {{ request('filter') === 'upcoming' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
+                            {{ __('messages.upcoming') }}
+                        </a>
+                        <a href="{{ route('patient.appointments.index', ['filter' => 'past']) }}"
+                           class="px-4 py-2 rounded-md text-sm font-medium transition {{ request('filter') === 'past' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
+                            {{ __('messages.past') }}
+                        </a>
+                    </div>
+
+                    <a href="{{ route('patient.appointments.export-pdf') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition shadow-sm hover:shadow text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Export PDF
                     </a>
                 </div>
             </div>
@@ -103,7 +110,6 @@
 
                                 <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                     @if($existingRating)
-                                        {{-- Already rated --}}
                                         <div class="flex items-center gap-3">
                                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                 {{ __('messages.rated') }}:
@@ -116,7 +122,6 @@
                                             @endif
                                         </div>
                                     @else
-                                        {{-- Rating form --}}
                                         <div x-data="{ open: false, stars: 0 }">
                                             <button @click="open = !open"
                                                     class="text-sm text-brand-600 dark:text-brand-400 hover:text-brand-900 dark:hover:text-brand-300 font-medium">

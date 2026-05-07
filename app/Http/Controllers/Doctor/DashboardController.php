@@ -4,30 +4,43 @@ namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $doctor = Auth::user();
+        $doctorId = Auth::id();
 
-        // Count appointments by status
-        $stats = [
-            'pending' => $doctor->doctorAppointments()->where('status', Appointment::STATUS_PENDING)->count(),
-            'accepted' => $doctor->doctorAppointments()->where('status', Appointment::STATUS_ACCEPTED)->count(),
-            'completed' => $doctor->doctorAppointments()->where('status', Appointment::STATUS_COMPLETED)->count(),
-            'total' => $doctor->doctorAppointments()->count(),
-        ];
+        // Counts by status
+        $pendingCount = Appointment::where('doctor_id', $doctorId)
+            ->where('status', 'pending')
+            ->count();
 
-        // Today's appointments
-        $todayAppointments = $doctor->doctorAppointments()
+        $acceptedCount = Appointment::where('doctor_id', $doctorId)
+            ->where('status', 'accepted')
+            ->count();
+
+        $completedCount = Appointment::where('doctor_id', $doctorId)
+            ->where('status', 'completed')
+            ->count();
+
+        $totalCount = Appointment::where('doctor_id', $doctorId)->count();
+
+        // Today's appointments (any status, today)
+        $todayAppointments = Appointment::where('doctor_id', $doctorId)
             ->whereDate('appointment_date', today())
-            ->whereIn('status', [Appointment::STATUS_ACCEPTED, Appointment::STATUS_PENDING])
             ->with('patient')
             ->orderBy('appointment_date')
             ->get();
 
-        return view('doctor.dashboard', compact('stats', 'todayAppointments'));
+        return view('doctor.dashboard', compact(
+            'pendingCount',
+            'acceptedCount',
+            'completedCount',
+            'totalCount',
+            'todayAppointments'
+        ));
     }
 }
