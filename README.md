@@ -147,9 +147,3 @@ Après avoir lancé le seeder, vous pouvez utiliser ces comptes :
 ### Patient (à créer manuellement via /register)
 
 Inscrivez-vous comme patient pour tester l'application complète.
-
-## 📸 Captures d'écran
-
-[À compléter avec vos screenshots après le déploiement]
-
-## 🗂️ Structure du projet
