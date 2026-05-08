@@ -18,11 +18,50 @@
         @method('patch')
 
         <!-- Profile Photo -->
+<!-- Profile Photo -->
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ __('messages.profile_photo') }}
             </label>
             <div class="flex items-center gap-4">
+                @if($user->profile_photo_url)
+                    <img src="{{ $user->profile_photo_url }}" alt="Photo" class="w-20 h-20 rounded-full object-cover ring-2 ring-brand-100 dark:ring-brand-900">
+                @else
+                    <div class="w-20 h-20 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-brand-600 dark:text-brand-300 text-xl font-bold">
+                        {{ strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) }}
+                    </div>
+                @endif
+
+                <div class="flex-1">
+                    <input type="file" name="profile_photo" accept="image/jpeg,image/png,image/jpg"
+                        class="block text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-brand-50 dark:file:bg-brand-900/30 file:text-brand-700 dark:file:text-brand-300 hover:file:bg-brand-100 dark:hover:file:bg-brand-900/50">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('messages.photo_upload_help') }}</p>
+                </div>
+            </div>
+
+            @if($user->profile_photo)
+                <button type="button"
+                        onclick="if(confirm('{{ __('messages.confirm_delete_photo') }}')) document.getElementById('delete-photo-form').submit();"
+                        class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/>
+                    </svg>
+                    {{ __('messages.delete_photo') }}
+                </button>
+            @endif
+
+            @error('profile_photo')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Hidden form for deleting photo -->
+        @if($user->profile_photo)
+            <form id="delete-photo-form" method="POST" action="{{ route('profile.photo.delete') }}" class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endif
                 @if($user->profile_photo_url)
                     <img src="{{ $user->profile_photo_url }}" alt="Photo" class="w-20 h-20 rounded-full object-cover">
                 @else

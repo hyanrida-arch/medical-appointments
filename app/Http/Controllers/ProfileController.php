@@ -18,14 +18,9 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $user = $request->user();
-
-        // Eager-load doctor profile if needed
-        if ($user->isDoctor()) {
-            $user->load('doctorProfile');
-        }
-
-        return view('profile.edit', compact('user'));
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
     }
 
     /**
@@ -34,38 +29,53 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
+        $user->fill($request->validated());
 
-        // Fill basic user fields
-        $user->fill($request->safe()->only(['first_name', 'last_name', 'email', 'phone']));
-
-        // If email was changed, mark it as unverified again
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
-            // Delete the old photo if there is one
+            // Delete old photo if exists
             if ($user->profile_photo) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            // Store the new photo and save its path
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
-            $user->profile_photo = $path;
+            $user->profile_photo = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
         $user->save();
 
-        // If user is a doctor, update their doctor profile too
+        // If user is doctor, update doctor profile
         if ($user->isDoctor()) {
-            $user->doctorProfile()->updateOrCreate(
+            DoctorProfile::updateOrCreate(
                 ['user_id' => $user->id],
-                $request->safe()->only(['specialization', 'consultation_fee', 'biography'])
+                [
+                    'specialization' => $request->specialization,
+                    'consultation_fee' => $request->consultation_fee,
+                    'biography' => $request->biography,
+                ]
             );
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Delete the user's profile photo.
+     */
+    public function deletePhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->profile_photo) {
+            Storage::disk('public')->delete($user->profile_photo);
+            $user->profile_photo = null;
+            $user->save();
+        }
+
+        return Redirect::route('profile.edit')->with('status', 'photo-deleted');
     }
 
     /**
@@ -79,7 +89,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        // Delete the photo file if it exists
+        // Delete profile photo if exists
         if ($user->profile_photo) {
             Storage::disk('public')->delete($user->profile_photo);
         }

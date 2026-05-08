@@ -156,6 +156,10 @@ return [
     'rated' => 'Noté',
     'top_rated' => 'Mieux notés',
 
+    'delete_photo' => 'Supprimer la photo',
+    'confirm_delete_photo' => 'Êtes-vous sûr de vouloir supprimer votre photo de profil ?',
+    'photo_deleted' => 'Photo supprimée avec succès',
+
     // Filters / Status
     'filter' => 'Filtrer',
 ];

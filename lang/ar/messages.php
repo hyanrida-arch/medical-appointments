@@ -156,6 +156,10 @@ return [
     'rated' => 'تم التقييم',
     'top_rated' => 'الأعلى تقييماً',
 
+    'delete_photo' => 'حذف الصورة',
+    'confirm_delete_photo' => 'هل أنت متأكد من حذف صورة الملف الشخصي؟',
+    'photo_deleted' => 'تم حذف الصورة بنجاح',
+
     // Filters / Status
     'filter' => 'فلترة',
 ];
