@@ -159,6 +159,7 @@ return [
     'delete_photo' => 'Delete photo',
     'confirm_delete_photo' => 'Are you sure you want to delete your profile photo?',
     'photo_deleted' => 'Photo deleted successfully',
+    'profile_updated_successfully' => 'Profile updated successfully!',
 
     // Filters / Status
     'filter' => 'Filter',

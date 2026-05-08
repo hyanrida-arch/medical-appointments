@@ -159,6 +159,7 @@ return [
     'delete_photo' => 'حذف الصورة',
     'confirm_delete_photo' => 'هل أنت متأكد من حذف صورة الملف الشخصي؟',
     'photo_deleted' => 'تم حذف الصورة بنجاح',
+    'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح!',
 
     // Filters / Status
     'filter' => 'فلترة',

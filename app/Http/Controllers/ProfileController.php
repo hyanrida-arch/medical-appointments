@@ -31,6 +31,16 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->fill($request->validated());
 
+        // Auto-prefix phone with +212 (Morocco)
+        if ($request->filled('phone')) {
+            $cleanPhone = preg_replace('/\D/', '', $request->phone); // keep only digits
+            $cleanPhone = preg_replace('/^212/', '', $cleanPhone);    // remove leading 212 if present
+            $cleanPhone = ltrim($cleanPhone, '0');                    // remove leading zero
+            $user->phone = '+212' . $cleanPhone;
+        } else {
+            $user->phone = null;
+        }
+
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
@@ -41,7 +51,6 @@ class ProfileController extends Controller
             if ($user->profile_photo) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
-
             $user->profile_photo = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
@@ -75,8 +84,9 @@ class ProfileController extends Controller
             $user->save();
         }
 
-        return Redirect::route('profile.edit')->with('status', 'photo-deleted');
-    }
+return Redirect::route('profile.edit')
+    ->with('status', 'profile-updated')
+    ->with('success', __('messages.profile_updated_successfully'));    }
 
     /**
      * Delete the user's account.
